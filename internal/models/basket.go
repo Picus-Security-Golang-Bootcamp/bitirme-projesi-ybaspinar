@@ -1,8 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"io"
 	"time"
 )
 
@@ -15,4 +17,8 @@ type Basket struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	Products    []Product      `gorm:"many2many:basket_products"`
 	TotalAmount float64        `gorm:"type:decimal(10,2);not null"`
+}
+
+func (b *Basket) FromJSON(r io.Reader) error {
+	return json.NewDecoder(r).Decode(b)
 }

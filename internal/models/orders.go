@@ -1,8 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"io"
 	"time"
 )
 
@@ -15,4 +17,8 @@ type Order struct {
 	Basket      Basket
 	Status      string
 	UserAddress UserAddress
+}
+
+func (o *Order) FromJSON(r io.Reader) error {
+	return json.NewDecoder(r).Decode(o)
 }

@@ -1,8 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"io"
 	"time"
 )
 
@@ -16,4 +18,8 @@ type User struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
+}
+
+func (u *User) FromJSON(r io.Reader) error {
+	return json.NewDecoder(r).Decode(u)
 }

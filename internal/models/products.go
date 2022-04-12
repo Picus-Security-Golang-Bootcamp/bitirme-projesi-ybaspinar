@@ -1,8 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"io"
 	"time"
 )
 
@@ -17,4 +19,8 @@ type Product struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
+}
+
+func (p *Product) FromJSON(r io.Reader) error {
+	return json.NewDecoder(r).Decode(p)
 }
