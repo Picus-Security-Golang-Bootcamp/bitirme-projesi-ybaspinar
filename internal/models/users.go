@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	ID            uuid.UUID `gorm:"type:uuid;primary_key"`
 	FirstName     string
 	LastName      string
 	Password      string
@@ -16,6 +16,7 @@ type User struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	IsAdmin       bool           `gorm:"default:false"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

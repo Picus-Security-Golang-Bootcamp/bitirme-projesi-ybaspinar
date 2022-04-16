@@ -40,8 +40,8 @@ func main() {
 
 	rootRouter := router.Group(cfg.ServerConfig.RoutePrefix)
 	basketRouter := rootRouter.Group("/basket")
-	categoryRouter := rootRouter.Group("/categories")
-	productRouter := rootRouter.Group("/products")
+	categoryRouter := rootRouter.Group("/category")
+	productRouter := rootRouter.Group("/product")
 	userRouter := rootRouter.Group("/user")
 	orderRouter := rootRouter.Group("/order")
 
@@ -64,9 +64,7 @@ func main() {
 	orderRepo := orders.NewOrdersRepo(DB)
 	orderRepo.Migrate()
 	orders.NewOrdersHandler(orderRouter, orderRepo)
-	go func() {
-		srv.ListenAndServe()
-	}()
+	srv.ListenAndServe()
 
 	log.Println("Application started successfully")
 

@@ -14,6 +14,7 @@ func NewProductRepo(db *gorm.DB) *ProductRepo {
 	return &ProductRepo{db}
 }
 func (r *ProductRepo) Migrate() {
+	zap.L().Info("Migrating products table")
 	r.db.AutoMigrate(&models.Product{})
 }
 
@@ -22,11 +23,12 @@ func (r *ProductRepo) Create(product *models.Product) error {
 	return r.db.Create(product).Error
 }
 
-func (r *ProductRepo) GetAll() ([]models.Product, error) {
+func (r *ProductRepo) GetAll(pageIndex, pageSize int) ([]models.Product, int) {
 	zap.L().Debug("ProductRepo.GetAll")
 	var products []models.Product
-	err := r.db.Find(&products).Error
-	return products, err
+	var count int64
+	r.db.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&products).Count(&count)
+	return products, int(count)
 }
 
 func (r *ProductRepo) GetByID(id string) (*models.Product, error) {
