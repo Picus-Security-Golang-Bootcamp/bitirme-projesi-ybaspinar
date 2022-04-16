@@ -1,15 +1,12 @@
 package models
 
 import (
-	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"io"
 	"time"
 )
 
 type Basket struct {
-	gorm.Model
 	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	UserID      uuid.UUID `gorm:"type:uuid;not null"`
 	CreatedAt   time.Time
@@ -19,6 +16,8 @@ type Basket struct {
 	TotalAmount float64        `gorm:"type:decimal(10,2);not null"`
 }
 
-func (b *Basket) FromJSON(r io.Reader) error {
-	return json.NewDecoder(r).Decode(b)
+func (b *Basket) BeforeCreate(tx *gorm.DB) (err error) {
+	b.ID = uuid.New()
+
+	return
 }

@@ -1,10 +1,8 @@
 package models
 
 import (
-	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"io"
 	"time"
 )
 
@@ -17,6 +15,8 @@ type Category struct {
 	Products  []Product `gorm:"many2many:product_categories"`
 }
 
-func (c *Category) FromJSON(r io.Reader) error {
-	return json.NewDecoder(r).Decode(c)
+func (c *Category) BeforeCreate(tx *gorm.DB) (err error) {
+	c.ID = uuid.New()
+
+	return
 }
