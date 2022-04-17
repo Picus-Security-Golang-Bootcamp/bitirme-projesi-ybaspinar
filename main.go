@@ -62,23 +62,23 @@ func main() {
 
 	basketRepo := basket.NewBasketRepo(DB)
 	basketRepo.Migrate()
-	basket.NewBasketHandler(basketRouter, basketRepo)
+	basket.NewBasketHandler(basketRouter, basketRepo, cfg)
 
 	categoryRepo := categories.NewCategoryRepo(DB)
 	categoryRepo.Migrate()
-	categories.NewCategoriesHandler(categoryRouter, categoryRepo)
+	categories.NewCategoriesHandler(categoryRouter, categoryRepo, cfg)
 
 	productRepo := products.NewProductRepo(DB)
 	productRepo.Migrate()
-	products.NewProductHandler(productRouter, productRepo)
+	products.NewProductHandler(productRouter, productRepo, cfg)
 
 	userRepo := user.NewUserRepo(DB)
 	userRepo.Migrate()
-	user.NewUserHandler(userRouter, userRepo)
+	user.NewUserHandler(userRouter, userRepo, cfg)
 
 	orderRepo := orders.NewOrdersRepo(DB)
 	orderRepo.Migrate()
-	orders.NewOrdersHandler(orderRouter, orderRepo)
+	orders.NewOrdersHandler(orderRouter, orderRepo, cfg)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

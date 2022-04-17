@@ -2,15 +2,20 @@ package user
 
 import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/models"
+	jwtHelper "github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/JWT"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/config"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"net/http"
+	"os"
+	"time"
 )
 
 type UserHandler struct {
 	repo *UserRepo
+	cfg  *config.Config
 }
 
-//TODO: implement JWT
 func (h UserHandler) SignUp(context *gin.Context) {
 	var user models.User
 	if err := context.ShouldBindJSON(&user); err != nil {
@@ -21,10 +26,18 @@ func (h UserHandler) SignUp(context *gin.Context) {
 		context.JSON(400, gin.H{"error": err})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+	jwtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userid":  user.ID,
+		"email":   user.Email,
+		"iat":     time.Now().Unix(),
+		"iss":     os.Getenv("ENV"),
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"isAdmin": user.IsAdmin,
+	})
+	token := jwtHelper.GenerateToken(jwtClaims, h.cfg.JWTConfig.SecretKey)
+	context.JSON(http.StatusOK, token)
 }
 
-//TODO: implement JWT
 func (h UserHandler) Login(context *gin.Context) {
 	var user models.User
 	if err := context.ShouldBindJSON(&user); err != nil {
@@ -35,13 +48,20 @@ func (h UserHandler) Login(context *gin.Context) {
 		context.JSON(400, gin.H{"error": err})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"message": "User logged in successfully"})
+	jwtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userid":  user.ID,
+		"email":   user.Email,
+		"iat":     time.Now().Unix(),
+		"iss":     os.Getenv("ENV"),
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"isAdmin": user.IsAdmin,
+	})
+	token := jwtHelper.GenerateToken(jwtClaims, h.cfg.JWTConfig.SecretKey)
+	context.JSON(http.StatusOK, token)
 }
 
-func NewUserHandler(r *gin.RouterGroup, repo *UserRepo) {
-	handler := &UserHandler{
-		repo: repo,
-	}
+func NewUserHandler(r *gin.RouterGroup, repo *UserRepo, cfg *config.Config) {
+	handler := &UserHandler{repo: repo, cfg: cfg}
 	r.POST("/signup", handler.SignUp)
 	r.POST("/login", handler.Login)
 }

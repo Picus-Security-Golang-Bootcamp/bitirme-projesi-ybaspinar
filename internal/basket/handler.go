@@ -2,6 +2,8 @@ package basket
 
 import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/models"
+	jwtHelper "github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/JWT"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/config"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/pagination"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,64 +11,88 @@ import (
 
 type basketHandler struct {
 	repo *BasketRepo
+	cfg  *config.Config
 }
 
-//TODO: authenication
 func (h basketHandler) create(context *gin.Context) {
+	token := context.GetHeader("Authorization")
+	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
-	if err := context.ShouldBindJSON(&basket); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if basket.UserID == decodedClaims.UserID {
+		if err := context.ShouldBindJSON(&basket); err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := h.repo.Create(&basket); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		context.JSON(http.StatusCreated, basket)
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 	}
-	if err := h.repo.Create(&basket); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	context.JSON(http.StatusCreated, basket)
+
 }
 
-//TODO: authenticate
 func (h basketHandler) list(context *gin.Context) {
+	token := context.GetHeader("Authorization")
+	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
-	pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
-	products, totalCount := h.repo.GetAllByUserID(basket.ID.String(), pageIndex, pageSize)
-	paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
-	paginatedResponse.Items = &products
-	context.JSON(http.StatusOK, paginatedResponse)
+	if basket.UserID == decodedClaims.UserID {
+		pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
+		products, totalCount := h.repo.GetAllByUserID(basket.ID.String(), pageIndex, pageSize)
+		paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
+		paginatedResponse.Items = &products
+		context.JSON(http.StatusOK, paginatedResponse)
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	}
+
 }
 
-//TODO: authenticate
 func (h basketHandler) update(context *gin.Context) {
+	token := context.GetHeader("Authorization")
+	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
-	if err := context.ShouldBindJSON(&basket); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+
+	if basket.UserID == decodedClaims.UserID {
+		if err := context.ShouldBindJSON(&basket); err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := h.repo.Update(&basket); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, basket)
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 	}
-	if err := h.repo.Update(&basket); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	context.JSON(http.StatusOK, basket)
+
 }
 
-//TODO: authenticate
 func (h basketHandler) delete(context *gin.Context) {
+	token := context.GetHeader("Authorization")
+	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
-	if err := context.ShouldBindJSON(&basket); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if basket.UserID == decodedClaims.UserID {
+		if err := context.ShouldBindJSON(&basket); err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := h.repo.Delete(&basket); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, basket)
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 	}
-	if err := h.repo.Delete(&basket); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	context.JSON(http.StatusOK, basket)
+
 }
 
-func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepo) {
-	h := &basketHandler{
-		repo: repo,
-	}
+func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepo, cfg *config.Config) {
+	h := &basketHandler{repo: repo, cfg: cfg}
 	r.POST("/create", h.create)
 	r.GET("/", h.list)
 	r.POST("/update", h.update)
