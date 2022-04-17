@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -17,12 +18,21 @@ func (r *UserRepo) Migrate() {
 	r.db.AutoMigrate(&models.User{})
 }
 
-func (r *UserRepo) Create(user *models.User) error {
+func (r *UserRepo) SignUp(user *models.User) error {
+	hPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hPassword)
 	return r.db.Create(user).Error
 }
 
-func (r *UserRepo) FindByEmail(email string) (*models.User, error) {
-	user := &models.User{}
-	err := r.db.Where("email = ?", email).First(user).Error
-	return user, err
+func (r *UserRepo) Login(user *models.User) error {
+	password := []byte(user.Password)
+	r.db.Where("email = ? ", user.Email).First(user)
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), password)
+	if err != nil {
+		return err
+	}
+	return nil
 }
