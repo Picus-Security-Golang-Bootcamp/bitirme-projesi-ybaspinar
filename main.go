@@ -30,7 +30,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+	router.Use(gin.Recovery()).Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		// your custom format
+		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+			param.ClientIP,
+			param.TimeStamp.Format(time.RFC1123),
+			param.Method,
+			param.Path,
+			param.Request.Proto,
+			param.StatusCode,
+			param.Latency,
+			param.Request.UserAgent(),
+			param.ErrorMessage,
+		)
+	}))
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s", cfg.ServerConfig.Port),
 		Handler:      router,
@@ -39,11 +54,11 @@ func main() {
 	}
 
 	rootRouter := router.Group(cfg.ServerConfig.RoutePrefix)
-	basketRouter := rootRouter.Group("/basket")
+	basketRouter := rootRouter.Group("/cart")
 	categoryRouter := rootRouter.Group("/category")
 	productRouter := rootRouter.Group("/product")
 	userRouter := rootRouter.Group("/user")
-	orderRouter := rootRouter.Group("/order")
+	orderRouter := rootRouter.Group("/orders")
 
 	basketRepo := basket.NewBasketRepo(DB)
 	basketRepo.Migrate()
@@ -64,7 +79,12 @@ func main() {
 	orderRepo := orders.NewOrdersRepo(DB)
 	orderRepo.Migrate()
 	orders.NewOrdersHandler(orderRouter, orderRepo)
-	srv.ListenAndServe()
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
 
 	log.Println("Application started successfully")
 

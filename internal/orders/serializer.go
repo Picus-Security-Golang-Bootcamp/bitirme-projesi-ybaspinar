@@ -9,13 +9,19 @@ import (
 func OrderToResponse(order *models.Order) *api.Orders {
 	return &api.Orders{
 		ID:     order.ID.String(),
-		Userid: order.UserID.ID.String(),
+		Userid: order.UserID.String(),
 		Status: order.Status,
 		//Cart:       order.BasketID.ID,
-		Useraddres: order.UserAddressID.ID.String(),
 	}
 }
 
+func OrdersToResponse(orders *[]models.Order) []*api.Orders {
+	var response []*api.Orders
+	for _, order := range *orders {
+		response = append(response, OrderToResponse(&order))
+	}
+	return response
+}
 func ResponseToOrder(order *api.Orders) *models.Order {
 	id, _ := uuid.Parse(order.ID)
 	//uid, _ := uuid.Parse(order.Userid)

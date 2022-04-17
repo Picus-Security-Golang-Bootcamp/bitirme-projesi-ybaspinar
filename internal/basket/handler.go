@@ -27,7 +27,7 @@ func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepo) {
 		repo: repo,
 	}
 	r.POST("/create", h.create)
-	r.GET("/list", h.list)
+	r.GET("/", h.list)
 	r.POST("/update", h.update)
 	r.DELETE("/", h.delete)
 

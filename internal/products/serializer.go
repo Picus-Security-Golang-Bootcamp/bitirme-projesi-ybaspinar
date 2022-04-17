@@ -8,7 +8,7 @@ import (
 func ProductToResponse(p *models.Product) *api.Products {
 
 	return &api.Products{
-		ID:          int64(p.ID),
+		ID:          p.ID.String(),
 		Name:        p.Name,
 		Price:       int64(p.Price),
 		Stock:       int64(p.Stock),

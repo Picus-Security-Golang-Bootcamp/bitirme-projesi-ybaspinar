@@ -7,16 +7,15 @@ import (
 )
 
 type User struct {
-	ID            uuid.UUID `gorm:"type:uuid;primary_key"`
-	FirstName     string
-	LastName      string
-	Password      string
-	Email         string
-	UserAddresses []UserAddress
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	DeletedAt     gorm.DeletedAt `gorm:"index"`
-	IsAdmin       bool           `gorm:"default:false"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	FirstName string
+	LastName  string
+	Password  string
+	Email     string
+	IsAdmin   bool `gorm:"default:false"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

@@ -1,6 +1,8 @@
 package products
 
 import (
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/api"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/httpErrors"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/pagination"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,11 +13,23 @@ type productHandler struct {
 }
 
 func (h *productHandler) create(context *gin.Context) {
+	productb := &api.Products{}
+	if err := context.Bind(productb); err != nil {
+		context.JSON(httpErrors.ErrorResponse(httpErrors.CannotBindGivenData))
+		return
+	}
+	product := h.repo.Create(ResponseToProduct(productb))
 
+	context.JSON(http.StatusOK, product)
 }
 
 func (h *productHandler) delete(context *gin.Context) {
-
+	id := context.Param("id")
+	if err := h.repo.Delete(id); err != nil {
+		context.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Product deleted"})
 }
 
 func (h *productHandler) search(context *gin.Context) {
@@ -23,7 +37,15 @@ func (h *productHandler) search(context *gin.Context) {
 }
 
 func (h *productHandler) update(context *gin.Context) {
+	id := context.Param("id")
+	productb := &api.Products{ID: id}
+	if err := context.Bind(productb); err != nil {
+		context.JSON(httpErrors.ErrorResponse(httpErrors.CannotBindGivenData))
+		return
+	}
+	product := h.repo.Update(ResponseToProduct(productb))
 
+	context.JSON(http.StatusOK, product)
 }
 
 func (h *productHandler) getAll(context *gin.Context) {
