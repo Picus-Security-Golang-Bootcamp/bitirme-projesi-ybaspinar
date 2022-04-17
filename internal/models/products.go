@@ -16,7 +16,7 @@ type Product struct {
 	Description string         `json:"description"`
 	Price       float64        `json:"price"`
 	Stock       int            `json:"stock"`
-	CategoryID  int            `gomr:"fk:category" json:"category_id"`
+	CategoryID  string         `gomr:"fk:category" json:"categoryid"`
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
@@ -24,5 +24,3 @@ func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
 
 	return
 }
-
-// json to struct binding
