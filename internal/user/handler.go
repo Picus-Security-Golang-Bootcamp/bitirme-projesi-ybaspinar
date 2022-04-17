@@ -8,10 +8,12 @@ type UserHandler struct {
 	repo *UserRepo
 }
 
+//TODO: implement
 func (h UserHandler) SignUp(context *gin.Context) {
 
 }
 
+//TODO: implement
 func (h UserHandler) Login(context *gin.Context) {
 
 }

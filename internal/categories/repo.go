@@ -27,8 +27,8 @@ func (r *CategoriesRepo) GetAll(pageIndex, pageSize int) ([]models.Category, int
 	return categories, int(count)
 }
 
-func (r *CategoriesRepo) CreateFromCSV(categories *[]models.Category) error {
+func (r *CategoriesRepo) CreateFromCSV(categories *models.Category) error {
 	zap.L().Debug("Creating categories from csv")
-	err := r.db.Create(&categories).Error
+	err := r.db.Create(categories).Error
 	return err
 }

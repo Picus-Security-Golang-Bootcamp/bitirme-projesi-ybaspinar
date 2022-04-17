@@ -19,6 +19,7 @@ func (r *ProductRepo) Migrate() {
 }
 
 func (r *ProductRepo) Create(product *models.Product) error {
+	println(product)
 	zap.L().Debug("ProductRepo.Create", zap.Any("product", product))
 	return r.db.Create(product).Error
 }
@@ -40,10 +41,26 @@ func (r *ProductRepo) GetByID(id string) (*models.Product, error) {
 
 func (r *ProductRepo) Update(product *models.Product) error {
 	zap.L().Debug("ProductRepo.Update", zap.Any("product", product))
-	return r.db.Save(product).Error
+	return r.db.Where(product.ID).Save(product).Error
 }
 
 func (r *ProductRepo) Delete(id string) error {
 	zap.L().Debug("ProductRepo.Delete", zap.Any("id", id))
 	return r.db.Delete(&models.Product{}, id).Error
+}
+
+func (r *ProductRepo) GetByCategory(category string, pageIndex, pageSize int) ([]models.Product, int) {
+	zap.L().Debug("ProductRepo.GetByCategory", zap.Any("category", category))
+	var products []models.Product
+	var count int64
+	r.db.Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("category = ?", category).Find(&products).Count(&count)
+	return products, int(count)
+}
+
+func (r *ProductRepo) FuzzySearchSkuAndNameAndId(search string, pageIndex, pageSize int) ([]models.Product, int) {
+	zap.L().Debug("ProductRepo.FuzzySearchSkuAndNameAndId", zap.Any("search", search))
+	var products []models.Product
+	var count int64
+	r.db.Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("sku LIKE ? OR name LIKE ? OR id LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%").Find(&products).Count(&count)
+	return products, int(count)
 }

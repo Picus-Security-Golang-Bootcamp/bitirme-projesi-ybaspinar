@@ -7,13 +7,12 @@ import (
 )
 
 type Basket struct {
-	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID      uuid.UUID `gorm:"type:uuid;not null,foreignkey:UserID"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Products    []Product      `gorm:"many2many:basket_products"`
-	TotalAmount float64        `gorm:"type:decimal(10,2);not null"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null,foreignkey:UserID" json:"user_id"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Products  []Product      `gorm:"many2many:basket_products" json:"products"`
 }
 
 func (b *Basket) BeforeCreate(tx *gorm.DB) (err error) {

@@ -7,16 +7,16 @@ import (
 )
 
 type Product struct {
-	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	ID          uuid.UUID `gorm:"type:uuid;primary_key" json:"id,omitempty"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Name        string
-	SKU         string
-	Description string
-	Price       float64
-	Stock       int
-	Categories  []Category `gorm:"many2many:product_categories"`
+	Name        string         `json:"name"`
+	SKU         string         `json:"sku"`
+	Description string         `json:"description"`
+	Price       float64        `json:"price"`
+	Stock       int            `json:"stock"`
+	CategoryID  int            `gomr:"fk:category" json:"category_id"`
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
@@ -24,3 +24,5 @@ func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
 
 	return
 }
+
+// json to struct binding
