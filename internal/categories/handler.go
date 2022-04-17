@@ -1,12 +1,12 @@
 package categories
 
 import (
+	"encoding/csv"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/internal/models"
 	jwtHelper "github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/JWT"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/config"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ybaspinar/pkg/pagination"
 	"github.com/gin-gonic/gin"
-	"github.com/gocarina/gocsv"
 	"net/http"
 )
 
@@ -17,19 +17,32 @@ type categoriesHandler struct {
 
 // create new categories with given data
 func (h categoriesHandler) create(context *gin.Context) {
+	var categories []models.Category
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	if decodedClaims.IsAdmin {
-		var Categories []models.Category
-		if err := gocsv.Unmarshal(context.Request.Body, &Categories); err != nil {
+		file, _, err := context.Request.FormFile("file")
+		defer file.Close()
+		if err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if err := h.repo.CreateBulks(&Categories); err != nil {
-			context.JSON(500, gin.H{"error": err.Error()})
+		csvLines, err := csv.NewReader(file).ReadAll()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		context.JSON(http.StatusOK, Categories)
+		for _, line := range csvLines {
+			categories = append(categories, models.Category{
+				ID:   line[0],
+				Name: line[1],
+			})
+		}
+		categories = categories[1:]
+		for _, category := range categories {
+			h.repo.Create(&category)
+		}
+		context.JSON(http.StatusOK, categories)
 	} else {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized"})
 	}

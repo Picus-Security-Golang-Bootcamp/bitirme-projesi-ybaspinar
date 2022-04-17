@@ -7,12 +7,12 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id,omitempty"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
-	FirstName string         `gorm:"type:varchar(100);not null" json:"first_name"`
-	LastName  string         `gorm:"type:varchar(100);not null" json:"last_name"`
+	FirstName string         `gorm:"type:varchar(100);not null" json:"firstname"`
+	LastName  string         `gorm:"type:varchar(100);not null" json:"lastname"`
 	Password  string         `gorm:"type:varchar(100);not null" json:"password"`
 	Email     string         `gorm:"type:varchar(100);not null;unique" json:"email"`
 	IsAdmin   bool           `gorm:"default:false"`

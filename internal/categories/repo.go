@@ -36,9 +36,9 @@ func (r *CategoriesRepo) Create(categories *models.Category) error {
 }
 
 //CreateBulks creates new categories
-func (r *CategoriesRepo) CreateBulks(categories *[]models.Category) error {
+func (r *CategoriesRepo) CreateBulks(categories []models.Category) error {
 	zap.L().Debug("Creating categories from csv")
-	for _, category := range *categories {
+	for _, category := range categories {
 		err := r.db.Create(&category).Error
 		if err != nil {
 			return err

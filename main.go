@@ -30,7 +30,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	gin.SetMode(gin.ReleaseMode)
+
+	//gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.Use(gin.Recovery()).Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		// your custom format
