@@ -21,11 +21,13 @@ func (r *OrdersRepo) Migrate() {
 	r.db.AutoMigrate(&models.Order{})
 }
 
+//Create Creates a new order
 func (r *OrdersRepo) Create(order *models.Order) error {
 	zap.L().Debug("Creating order", zap.Any("order", order))
 	return r.db.Create(order).Error
 }
 
+//GetUserOrders gets all orders of a user
 func (r *OrdersRepo) GetUsersOrders(userID string, pageIndex, pageSize int) ([]models.Order, int) {
 	zap.L().Debug("GetUsersOrders", zap.String("userID", userID))
 	var orders []models.Order
@@ -34,6 +36,7 @@ func (r *OrdersRepo) GetUsersOrders(userID string, pageIndex, pageSize int) ([]m
 	return orders, int(count)
 }
 
+//CancelOrder cancels an order if 14 days not passed
 func (r *OrdersRepo) CancelOrder(orderID, userID string) error {
 	zap.L().Debug("CancelOrder", zap.String("orderID", orderID))
 	if r.CheckIf14DaysPassed(orderID) {
@@ -42,16 +45,13 @@ func (r *OrdersRepo) CancelOrder(orderID, userID string) error {
 	return r.db.Model(&models.Order{}).Where("id = ? AND userid = ?", orderID, userID).Update("status", "cancelled").Error
 }
 
-func (r *OrdersRepo) ConfirmOrder(orderID, userID string) error {
-	zap.L().Debug("ConfirmOrder", zap.String("orderID", orderID))
-	return r.db.Model(&models.Order{}).Where("id = ? AND userid = ?", orderID, userID).Update("status", "confirmed").Error
-}
-
+//CompleteOrder completes an order
 func (r *OrdersRepo) CompleteOrder(orderID, userID string) error {
 	zap.L().Debug("CompleteOrder", zap.String("orderID", orderID))
 	return r.db.Model(&models.Order{}).Where("id = ? AND userid = ?", orderID, userID).Update("status", "delivered").Error
 }
 
+//CheckIf14DaysPassed checks if 14 days passed
 func (r *OrdersRepo) CheckIf14DaysPassed(orderID string) bool {
 	zap.L().Debug("CheckIf14DaysPassed", zap.String("orderID", orderID))
 	var order models.Order

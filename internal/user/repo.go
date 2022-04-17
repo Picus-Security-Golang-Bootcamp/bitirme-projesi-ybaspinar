@@ -18,6 +18,7 @@ func (r *UserRepo) Migrate() {
 	r.db.AutoMigrate(&models.User{})
 }
 
+//SignUp New user
 func (r *UserRepo) SignUp(user *models.User) error {
 	hPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -27,6 +28,7 @@ func (r *UserRepo) SignUp(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
+//Login Checks given user credentials
 func (r *UserRepo) Login(user *models.User) error {
 	password := []byte(user.Password)
 	r.db.Where("email = ? ", user.Email).First(user)

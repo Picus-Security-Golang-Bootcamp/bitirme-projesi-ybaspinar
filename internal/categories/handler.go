@@ -20,12 +20,12 @@ func (h categoriesHandler) create(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	if decodedClaims.IsAdmin {
-		var Categories models.Category
+		var Categories []models.Category
 		if err := gocsv.Unmarshal(context.Request.Body, &Categories); err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if err := h.repo.CreateFromCSV(&Categories); err != nil {
+		if err := h.repo.CreateBulks(&Categories); err != nil {
 			context.JSON(500, gin.H{"error": err.Error()})
 			return
 		}

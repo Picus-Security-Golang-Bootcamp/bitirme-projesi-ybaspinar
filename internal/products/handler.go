@@ -15,6 +15,7 @@ type productHandler struct {
 	cfg  *config.Config
 }
 
+//create Creates new product if user is admin
 func (h *productHandler) create(context *gin.Context) {
 	var product models.Product
 	token := context.GetHeader("Authorization")
@@ -34,6 +35,7 @@ func (h *productHandler) create(context *gin.Context) {
 	}
 }
 
+//delete Deletes product if user is admin
 func (h *productHandler) delete(context *gin.Context) {
 	id := context.Param("id")
 	token := context.GetHeader("Authorization")
@@ -49,6 +51,7 @@ func (h *productHandler) delete(context *gin.Context) {
 	}
 }
 
+//search Searches products by given query
 func (h *productHandler) search(context *gin.Context) {
 	pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
 	products, totalCount := h.repo.FuzzySearchSkuAndNameAndId(context.Param("q"), pageIndex, pageSize)
@@ -57,6 +60,7 @@ func (h *productHandler) search(context *gin.Context) {
 	context.JSON(http.StatusOK, products)
 }
 
+//update Updates product if user is admin
 func (h *productHandler) update(context *gin.Context) {
 	var product models.Product
 	token := context.GetHeader("Authorization")
@@ -78,6 +82,7 @@ func (h *productHandler) update(context *gin.Context) {
 
 }
 
+//getAll Gets all products
 func (h *productHandler) getAll(context *gin.Context) {
 	pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
 	products, totalCount := h.repo.GetAll(pageIndex, pageSize)
@@ -88,10 +93,10 @@ func (h *productHandler) getAll(context *gin.Context) {
 
 func NewProductHandler(r *gin.RouterGroup, repo *ProductRepo, cfg *config.Config) {
 	h := &productHandler{repo: repo, cfg: cfg}
-
-	r.POST("/create", h.create)
 	r.GET("/", h.getAll)
-	r.GET("/search/", h.search)
 	r.PUT("/", h.update)
-	r.DELETE("/:id", h.delete)
+	r.DELETE("/", h.delete)
+	r.POST("/create", h.create)
+	r.GET("/search", h.search)
+
 }

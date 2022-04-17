@@ -16,6 +16,7 @@ type UserHandler struct {
 	cfg  *config.Config
 }
 
+//SignUp Creates new user with given data and returns token
 func (h UserHandler) SignUp(context *gin.Context) {
 	var user models.User
 	if err := context.ShouldBindJSON(&user); err != nil {
@@ -38,6 +39,7 @@ func (h UserHandler) SignUp(context *gin.Context) {
 	context.JSON(http.StatusOK, token)
 }
 
+//Login compares user's email and password with database and returns token
 func (h UserHandler) Login(context *gin.Context) {
 	var user models.User
 	if err := context.ShouldBindJSON(&user); err != nil {

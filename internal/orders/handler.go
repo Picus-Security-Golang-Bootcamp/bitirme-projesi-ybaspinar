@@ -45,18 +45,6 @@ func (h ordersHandler) getAll(context *gin.Context) {
 	context.JSON(http.StatusOK, paginatedResponse)
 }
 
-func (h ordersHandler) confirm(context *gin.Context) {
-	var order models.Order
-	if err := context.Bind(&order); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	token := context.GetHeader("Authorization")
-	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
-	h.repo.ConfirmOrder(order.ID.String(), decodedClaims.UserID.String())
-	context.JSON(http.StatusOK, order)
-}
-
 // Cancel order if its not past 14 days
 func (h ordersHandler) cancel(context *gin.Context) {
 	var order models.Order
@@ -87,7 +75,6 @@ func NewOrdersHandler(r *gin.RouterGroup, repo *OrdersRepo, cfg *config.Config) 
 
 	r.GET("/", h.getAll)
 	r.POST("/create", h.create)
-	r.POST("/confirm", h.confirm)
 	r.POST("/cancel", h.cancel)
 	r.POST("/complete", h.complete)
 }

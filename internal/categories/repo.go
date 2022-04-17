@@ -19,6 +19,7 @@ func (r *CategoriesRepo) Migrate() {
 	r.db.AutoMigrate(&models.Category{})
 }
 
+//GetAll returns all categories
 func (r *CategoriesRepo) GetAll(pageIndex, pageSize int) ([]models.Category, int) {
 	zap.L().Debug("Getting all categories")
 	var categories []models.Category
@@ -27,8 +28,21 @@ func (r *CategoriesRepo) GetAll(pageIndex, pageSize int) ([]models.Category, int
 	return categories, int(count)
 }
 
-func (r *CategoriesRepo) CreateFromCSV(categories *models.Category) error {
+//Create creates a new category
+func (r *CategoriesRepo) Create(categories *models.Category) error {
 	zap.L().Debug("Creating categories from csv")
 	err := r.db.Create(categories).Error
 	return err
+}
+
+//CreateBulks creates new categories
+func (r *CategoriesRepo) CreateBulks(categories *[]models.Category) error {
+	zap.L().Debug("Creating categories from csv")
+	for _, category := range *categories {
+		err := r.db.Create(&category).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

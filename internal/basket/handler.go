@@ -14,6 +14,7 @@ type basketHandler struct {
 	cfg  *config.Config
 }
 
+//create Creates new basket
 func (h basketHandler) create(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
@@ -34,7 +35,8 @@ func (h basketHandler) create(context *gin.Context) {
 
 }
 
-func (h basketHandler) list(context *gin.Context) {
+//getAll Gets all baskets with given ID
+func (h basketHandler) getAll(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
@@ -50,6 +52,7 @@ func (h basketHandler) list(context *gin.Context) {
 
 }
 
+//update Updates basket with given ID
 func (h basketHandler) update(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
@@ -71,6 +74,7 @@ func (h basketHandler) update(context *gin.Context) {
 
 }
 
+//delete Deletes basket with given ID
 func (h basketHandler) delete(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
@@ -94,7 +98,7 @@ func (h basketHandler) delete(context *gin.Context) {
 func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepo, cfg *config.Config) {
 	h := &basketHandler{repo: repo, cfg: cfg}
 	r.POST("/create", h.create)
-	r.GET("/", h.list)
+	r.GET("/", h.getAll)
 	r.POST("/update", h.update)
 	r.DELETE("/", h.delete)
 
