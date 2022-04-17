@@ -13,7 +13,7 @@ JWTConfig:
   SecretKey: dummySecretKey
 
 DBConfig:
-  DataSourceName: host=localhost user=postgres password=9a2f55ef!Q dbname=final_project port=5432 sslmode=disable
+  DataSourceName: host=localhost user=postgres password=123456789 dbname=final_project port=5432 sslmode=disable
   Name: final_project
   MaxOpen: 50
   MaxIdle: 50
