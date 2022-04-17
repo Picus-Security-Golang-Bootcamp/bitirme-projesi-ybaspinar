@@ -1,0 +1,28 @@
+ServerConfig:
+  AppVersion: 1.0.0
+  Mode: Development
+  RoutePrefix: /api/v1
+  Debug: false
+  Port: :8080
+  TimeoutSecs: 60
+  ReadTimeoutSecs: 60
+  WriteTimeoutSecs: 12
+
+JWTConfig:
+  SessionTime: 3600
+  SecretKey: dummySecretKey
+
+DBConfig:
+  DataSourceName: host=localhost user=postgres password=9a2f55ef!Q dbname=final_project port=5432 sslmode=disable
+  Name: final_project
+  MaxOpen: 50
+  MaxIdle: 50
+  MaxLifetime: 5
+  MigrationFolder: file://migrations
+
+
+
+Logger:
+  Development: true
+  Encoding: json
+  Level: info
