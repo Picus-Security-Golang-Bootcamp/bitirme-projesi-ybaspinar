@@ -22,6 +22,3 @@ go build .
 Change configuration file to your needs.
 
 Its in pkg/config/config-local.yaml.
-
-## API
-For API documentation please check swagger.
