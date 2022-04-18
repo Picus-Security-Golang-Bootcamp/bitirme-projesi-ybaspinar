@@ -19,7 +19,7 @@ func (h ordersHandler) create(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var order models.Order
-	if err := context.Bind(order); err != nil {
+	if err := context.Bind(&order); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -38,11 +38,21 @@ func (h ordersHandler) create(context *gin.Context) {
 func (h ordersHandler) getAll(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
-	pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
-	orders, totalCount := h.repo.GetUsersOrders(decodedClaims.UserID.String(), pageIndex, pageSize)
-	paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
-	paginatedResponse.Items = &orders
-	context.JSON(http.StatusOK, paginatedResponse)
+	var order models.Order
+	if err := context.ShouldBindJSON(&order); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if decodedClaims.UserID == order.UserID {
+		pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
+		orders, totalCount := h.repo.GetUsersOrders(decodedClaims.UserID.String(), pageIndex, pageSize)
+		paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
+		paginatedResponse.Items = &orders
+		context.JSON(http.StatusOK, paginatedResponse)
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	}
+
 }
 
 // Cancel order if its not past 14 days
@@ -61,7 +71,7 @@ func (h ordersHandler) cancel(context *gin.Context) {
 // Complete order if user confirms
 func (h ordersHandler) complete(context *gin.Context) {
 	var order models.Order
-	if error := context.Bind(&order); error != nil {
+	if error := context.ShouldBindJSON(&order); error != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": error.Error()})
 		return
 	}

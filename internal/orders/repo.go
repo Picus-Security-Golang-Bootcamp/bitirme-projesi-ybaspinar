@@ -42,13 +42,13 @@ func (r *OrdersRepo) CancelOrder(orderID, userID string) error {
 	if r.CheckIf14DaysPassed(orderID) {
 		return errors.New("14 days passed")
 	}
-	return r.db.Model(&models.Order{}).Where("id = ? AND userid = ?", orderID, userID).Update("status", "cancelled").Error
+	return r.db.Model(&models.Order{}).Where("id = ? AND user_id = ?", orderID, userID).Update("status", "cancelled").Error
 }
 
 //CompleteOrder completes an order
 func (r *OrdersRepo) CompleteOrder(orderID, userID string) error {
 	zap.L().Debug("CompleteOrder", zap.String("orderID", orderID))
-	return r.db.Model(&models.Order{}).Where("id = ? AND userid = ?", orderID, userID).Update("status", "delivered").Error
+	return r.db.Model(&models.Order{}).Where("id = ? AND user_id = ?", orderID, userID).Update("status", "delivered").Error
 }
 
 //CheckIf14DaysPassed checks if 14 days passed

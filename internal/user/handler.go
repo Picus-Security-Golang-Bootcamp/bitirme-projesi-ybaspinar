@@ -47,7 +47,7 @@ func (h UserHandler) Login(context *gin.Context) {
 		return
 	}
 	if err := h.repo.Login(&user); err != nil {
-		context.JSON(400, gin.H{"error": err})
+		context.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	jwtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

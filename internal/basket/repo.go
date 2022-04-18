@@ -22,10 +22,10 @@ func (r *BasketRepo) Create(basket *models.Basket) error {
 }
 
 // GetAllByUserID returns all baskets of a user
-func (r *BasketRepo) GetAllByUserID(userID string, pageIndex, pageSize int) ([]models.Basket, int) {
-	basket := []models.Basket{}
+func (r *BasketRepo) GetAllByUserID(userID string, pageIndex, pageSize int) (models.Basket, int) {
+	basket := models.Basket{}
 	var count int64
-	r.db.Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("user_id = ?", userID).Find(&basket).Count(&count)
+	r.db.Preload("basket_products").Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("user_id = ?", userID).Find(&basket).Count(&count)
 	return basket, int(count)
 }
 
@@ -36,5 +36,5 @@ func (r *BasketRepo) Update(basket *models.Basket) error {
 
 // delete deletes a basket
 func (r *BasketRepo) Delete(basket *models.Basket) error {
-	return r.db.Delete(basket).Error
+	return r.db.Where("id = ?", basket.ID).Delete(basket).Error
 }

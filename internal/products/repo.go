@@ -43,7 +43,7 @@ func (r *ProductRepo) Update(product *models.Product) error {
 //Delete deletes a product
 func (r *ProductRepo) Delete(id string) error {
 	zap.L().Debug("ProductRepo.Delete", zap.Any("id", id))
-	return r.db.Delete(&models.Product{}, id).Error
+	return r.db.Where("id = ?", id).Delete(&models.Product{}).Error
 }
 
 //FuzzySearchSkuAndNameAndId returns products that match the given query
@@ -51,6 +51,6 @@ func (r *ProductRepo) FuzzySearchSkuAndNameAndId(search string, pageIndex, pageS
 	zap.L().Debug("ProductRepo.FuzzySearchSkuAndNameAndId", zap.Any("search", search))
 	var products []models.Product
 	var count int64
-	r.db.Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("sku LIKE ? OR name LIKE ? OR id LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%").Find(&products).Count(&count)
+	r.db.Offset((pageIndex-1)*pageSize).Limit(pageSize).Where("sku LIKE ? OR name LIKE ?", "%"+search+"%", "%"+search+"%").Find(&products).Count(&count)
 	return products, int(count)
 }

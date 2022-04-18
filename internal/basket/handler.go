@@ -19,11 +19,11 @@ func (h basketHandler) create(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
+	if err := context.ShouldBindJSON(&basket); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if basket.UserID == decodedClaims.UserID {
-		if err := context.ShouldBindJSON(&basket); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
 		if err := h.repo.Create(&basket); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -39,16 +39,12 @@ func (h basketHandler) create(context *gin.Context) {
 func (h basketHandler) getAll(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
-	var basket models.Basket
-	if basket.UserID == decodedClaims.UserID {
-		pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
-		products, totalCount := h.repo.GetAllByUserID(basket.ID.String(), pageIndex, pageSize)
-		paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
-		paginatedResponse.Items = &products
-		context.JSON(http.StatusOK, paginatedResponse)
-	} else {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-	}
+
+	pageIndex, pageSize := pagination.GetPaginationParametersFromRequest(context)
+	products, totalCount := h.repo.GetAllByUserID(decodedClaims.UserID.String(), pageIndex, pageSize)
+	paginatedResponse := pagination.NewFromGinRequest(context, totalCount)
+	paginatedResponse.Items = &products
+	context.JSON(http.StatusOK, paginatedResponse)
 
 }
 
@@ -57,12 +53,11 @@ func (h basketHandler) update(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
-
+	if err := context.ShouldBindJSON(&basket); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if basket.UserID == decodedClaims.UserID {
-		if err := context.ShouldBindJSON(&basket); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
 		if err := h.repo.Update(&basket); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -79,11 +74,11 @@ func (h basketHandler) delete(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	var basket models.Basket
+	if err := context.ShouldBindJSON(&basket); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if basket.UserID == decodedClaims.UserID {
-		if err := context.ShouldBindJSON(&basket); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
 		if err := h.repo.Delete(&basket); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

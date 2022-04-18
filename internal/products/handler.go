@@ -37,11 +37,15 @@ func (h *productHandler) create(context *gin.Context) {
 
 //delete Deletes product if user is admin
 func (h *productHandler) delete(context *gin.Context) {
-	id := context.Param("id")
+	var product models.Product
+	if err := context.ShouldBindJSON(&product); err != nil {
+		context.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	token := context.GetHeader("Authorization")
 	decodedClaims := jwtHelper.VerifyToken(token, h.cfg.JWTConfig.SecretKey)
 	if decodedClaims.IsAdmin {
-		if err := h.repo.Delete(id); err != nil {
+		if err := h.repo.Delete(product.ID.String()); err != nil {
 			context.JSON(500, gin.H{"error": err.Error()})
 			return
 		}

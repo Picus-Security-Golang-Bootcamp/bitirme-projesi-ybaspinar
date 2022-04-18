@@ -8,7 +8,7 @@ import (
 
 type Basket struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
-	UserID    uuid.UUID `gorm:"type:uuid;not null,foreignkey:UserID" json:"user_id"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null,foreignkey:UserID" json:"userid"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
