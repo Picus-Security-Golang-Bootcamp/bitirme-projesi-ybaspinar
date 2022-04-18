@@ -773,7 +773,7 @@ GET :8080/api/v1/product/search?q=REQUESTEDQERYHERE
 #### Request
 
 ```
-DELETE :8080/api/v1/product/?id=REQUESTEDIDHERE
+DELETE :8080/api/v1/product/
 REQUİRED:
 AUTHERIZATION: JWT token
 BODY: {"id": "27653112-bf2b-48d5-88e2-076fb478c4a2"}
